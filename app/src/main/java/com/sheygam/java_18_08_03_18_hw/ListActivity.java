@@ -3,6 +3,8 @@ package com.sheygam.java_18_08_03_18_hw;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -34,9 +36,11 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
         myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Contact contact = (Contact) adapter.getItem(position);
-                Toast.makeText(ListActivity.this, "Was clicked " + contact.getName(),
-                        Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ListActivity.this,AddContactActivity.class);
+                intent.putExtra("STATUS","view");
+                intent.putExtra("POS",position);
+                startActivity(intent);
+
             }
         });
 
@@ -77,8 +81,10 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
 
         String data = getSharedPreferences("CONTACTS",MODE_PRIVATE)
                 .getString(id,null);
-        if(data == null){
+        if(data == null || data.isEmpty()){
             emptyTxt.setVisibility(View.VISIBLE);
+            adapter = new MyAdapter(new ArrayList<Contact>());
+            myList.setAdapter(adapter);
         }else{
             emptyTxt.setVisibility(View.GONE);
             String[] arr = data.split(";");
@@ -89,5 +95,24 @@ public class ListActivity extends AppCompatActivity implements View.OnClickListe
             adapter = new MyAdapter(contacts);
             myList.setAdapter(adapter);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.list_activity_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.logout_item){
+            setResult(RESULT_OK);
+            finish();
+        }else if(item.getItemId() == R.id.add_item){
+            Intent intent = new Intent(this,AddContactActivity.class);
+            intent.putExtra("STATUS","add");
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
